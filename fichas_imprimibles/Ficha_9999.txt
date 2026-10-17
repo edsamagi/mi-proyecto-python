@@ -4,7 +4,7 @@
 ============================================================
 N° Orden de Servicio : 9999
 Nivel de Urgencia    : Estándar
-Fecha de Registro    : 2026-10-16 20:15:13
+Fecha de Registro    : 2026-10-17 10:43:23
 Dispositivo          : Portátil - Lenovo IdeaPad 3 15ITL6 (S/N: 5CD9123ABC)
 Estado Físico Entrada: Bisagra izquierda desajustada, tornillo inferior faltante
 ------------------------------------------------------------
@@ -12,7 +12,7 @@ FALLA REPORTADA POR EL CLIENTE:
 El cliente indica que el equipo no da video al encender y antes presentaba lentitud extrema
 ------------------------------------------------------------
 PREDIAGNÓSTICO EN MESA (FILTRO INICIAL 10-15 MIN):
-Telemetría SMART     : Bueno (100% / Normal)
+Telemetría SMART     : No Aplica / Sin disco / Pendiente
 Detalle Prediagnóstico:
 el equipo no genera video posible fallas en ram. smart pendiente
 ------------------------------------------------------------
@@ -32,5 +32,5 @@ OBSERVACIONES Y SALVEDADES DE GARANTÍA:
 el equipo genera video sin problema
 cliente autorizo reprogramacion en caso de hdd bueno
 ============================================================
-Estado Operativo Final: Listo para entrega / Entregado
+Estado Operativo Final: Esperando aprobación cliente
 Firma Técnico Responsable: _______________________________

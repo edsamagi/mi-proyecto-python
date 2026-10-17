@@ -148,6 +148,7 @@ def cargar_tabla_monitoreo():
     try:
         conexion = obtener_conexion()
         cursor = conexion.cursor(dictionary=True)
+        # Filtramos para mostrar ÚNICAMENTE órdenes activas en taller
         consulta = """
             SELECT 
                 o.id_orden,
@@ -160,6 +161,7 @@ def cargar_tabla_monitoreo():
             LEFT JOIN FICHAS_TECNICAS f ON o.id_orden = f.id_orden
             LEFT JOIN DETALLE_SERVICIOS_FICHA d ON f.id_ficha = d.id_ficha
             LEFT JOIN CATALOGO_SERVICIOS c ON d.id_servicio = c.id_servicio
+            WHERE o.estado != 'Listo para entrega / Entregado'
             GROUP BY o.id_orden, o.urgencia, e.marca, e.modelo, o.estado
             ORDER BY 
                 CASE 
