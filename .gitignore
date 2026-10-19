@@ -1,0 +1,9 @@
+# Excluir la carpeta de fichas generadas
+fichas_imprimibles/
+*.txt
+*.csv
+
+# Excluir archivos temporales y de configuración de VS Code
+.vscode/
+__pycache__/
+*.pyc
