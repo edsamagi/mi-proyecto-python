@@ -68,7 +68,7 @@ def main(page: ft.Page):
             ft.dropdown.Option("Portátil"),
             ft.dropdown.Option("Torre PC"),
             ft.dropdown.Option("Todo en Uno"),
-            ft.dropdown.Option("Impresora"),
+            ft.dropdown.Option("Otros"),
         ],
         value="Portátil"
     )
@@ -306,10 +306,10 @@ def main(page: ft.Page):
 
         try:
             accion, fecha = backend.guardar_o_actualizar_db(datos, servicios_seleccionados, catalogo_actual)
-            ruta_txt = backend.generar_archivo_ficha_txt(datos, servicios_seleccionados, fecha)
+            ruta_csv = backend.generar_archivo_ficha_csv(datos, servicios_seleccionados, fecha)
             limpiar_formulario_evento()
             cargar_tabla_monitoreo()
-            mostrar_mensaje(f"✓ Orden {datos['orden']} {accion}. Ficha: {ruta_txt}", "#15803d")
+            mostrar_mensaje(f"✓ Orden {datos['orden']} {accion}. Registro CSV: {ruta_csv}", "#15803d")
         except Exception as err:
             mostrar_mensaje(f"Error al guardar: {err}", "#dc2626")
 

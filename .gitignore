@@ -1,5 +1,5 @@
 # Excluir la carpeta de fichas generadas
-fichas_imprimibles/
+reportes_csv/
 *.txt
 *.csv
 

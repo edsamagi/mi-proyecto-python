@@ -257,53 +257,53 @@ def guardar_o_actualizar_db(datos, servicios_seleccionados, catalogo_actual):
 # 5. GENERACIÓN DE REPORTES (FICHA .TXT Y RESUMEN PARA SISTEMA WEB)
 # =====================================================================
 
-def generar_archivo_ficha_txt(datos, servicios_seleccionados, fecha_actual):
+def generar_archivo_ficha_csv(datos, servicios_seleccionados, fecha_actual):
     """
-    Crea la carpeta 'fichas_imprimibles' (si no existe) y genera adentro
-    un archivo de texto (.txt) con todo el formato de la ficha técnica del equipo.
+    Guarda o anexa la ficha técnica como una sola línea en formato CSV compatible con Excel.
     """
-    os.makedirs("fichas_imprimibles", exist_ok=True)
-    nombre_archivo = f"fichas_imprimibles/Ficha_{datos['orden']}.txt"
+    os.makedirs("reportes_csv", exist_ok=True)
+    nombre_archivo = "reportes_csv/fichas_tecnicas.csv"
 
-    # Armamos la lista de servicios con viñetas
-    txt_servicios_bloque = ""
-    for s in servicios_seleccionados:
-        txt_servicios_bloque += f"  • {s}\n"
+    def limpiar_texto(valor):
+        if not valor:
+            return ""
+        texto = str(valor).replace("\r\n", " ").replace("\n", " ").replace("\r", " ").strip()
+        texto = texto.replace('"', '""')
+        return f'"{texto}"'
 
-    # Plantilla de texto con los datos recolectados en el taller
-    contenido = (
-        "============================================================\n"
-        "           COMPUMEP - SOPORTE TÉCNICO Y MANTENIMIENTO        \n"
-        "                 FICHA DE LABORATORIO TÉCNICO               \n"
-        "============================================================\n"
-        f"N° Orden de Servicio : {datos['orden']}\n"
-        f"Nivel de Urgencia    : {datos['urgencia']}\n"
-        f"Fecha de Registro    : {fecha_actual.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"Dispositivo          : {datos['tipo']} - {datos['marca']} {datos['modelo']} (S/N: {datos['serial']})\n"
-        f"Estado Físico Entrada: {datos['est_fisico']}\n"
-        "------------------------------------------------------------\n"
-        f"FALLA REPORTADA POR EL CLIENTE:\n{datos['falla_cli']}\n"
-        "------------------------------------------------------------\n"
-        "PREDIAGNÓSTICO EN MESA (FILTRO INICIAL 10-15 MIN):\n"
-        f"Telemetría SMART     : {datos['smart']}\n"
-        f"Detalle Prediagnóstico:\n{datos['prediag'] or 'Sin observaciones adicionales de entrada.'}\n"
-        "------------------------------------------------------------\n"
-        f"SERVICIOS REALIZADOS ({len(servicios_seleccionados)}):\n"
-        f"{txt_servicios_bloque or '  • Pendiente de asignación.\n'}"
-        "------------------------------------------------------------\n"
-        f"DIAGNÓSTICO TÉCNICO DEFINITIVO (CAUSA RAÍZ):\n{datos['diag'] or 'En proceso de laboratorio.'}\n"
-        "------------------------------------------------------------\n"
-        f"SOLUCIÓN / TRABAJO REALIZADO:\n{datos['solucion'] or 'En banco de trabajo.'}\n"
-        "------------------------------------------------------------\n"
-        f"OBSERVACIONES Y SALVEDADES DE GARANTÍA:\n{datos['obs'] or 'Sin salvedades adicionales.'}\n"
-        "============================================================\n"
-        f"Estado Operativo Final: {datos['estado_orden']}\n"
-        "Firma Técnico Responsable: _______________________________\n"
+    nro_orden = str(datos.get("orden", "")).strip()
+    urgencia = str(datos.get("urgencia", "")).strip()
+    fecha_reg = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
+    tipo_disp = str(datos.get("tipo", "")).strip()
+    marca_modelo = f"{datos.get('marca', '')} {datos.get('modelo', '')}".strip()
+    serial_sn = str(datos.get("serial", "")).strip()
+    estado_entrada = limpiar_texto(datos.get("est_fisico", ""))
+    falla_reportada = limpiar_texto(datos.get("falla_cli", ""))
+    smart_status = str(datos.get("smart", "")).strip()
+    detalle_prediag = limpiar_texto(datos.get("prediag", ""))
+    servicios_str = limpiar_texto("|".join(servicios_seleccionados))
+    diag_definitivo = limpiar_texto(datos.get("diag", ""))
+    solucion_realizada = limpiar_texto(datos.get("solucion", ""))
+    observaciones = limpiar_texto(datos.get("obs", ""))
+    estado_final = str(datos.get("estado_orden", "")).strip()
+
+    linea_csv = (
+        f"{nro_orden},{urgencia},{fecha_reg},{tipo_disp},{marca_modelo},{serial_sn},"
+        f"{estado_entrada},{falla_reportada},{smart_status},{detalle_prediag},"
+        f"{servicios_str},{diag_definitivo},{solucion_realizada},{observaciones},{estado_final}\n"
     )
 
-    # Guardamos el archivo codificado en UTF-8 para que respete tildes y la letra ñ
-    with open(nombre_archivo, "w", encoding="utf-8") as f:
-        f.write(contenido)
+    archivo_nuevo = not os.path.exists(nombre_archivo)
+    with open(nombre_archivo, "a", encoding="utf-8-sig") as f:
+        if archivo_nuevo:
+            cabecera = (
+                "Nro_Orden,Urgencia,Fecha_Registro,Tipo_Dispositivo,Marca_Modelo,Serial,"
+                "Estado_Entrada,Falla_Reportada,Smart_Status,Detalle_Prediagnostico,"
+                "Servicios_Realizados,Diagnostico_Definitivo,Solucion_Realizada,Observaciones,Estado_Final\n"
+            )
+            f.write(cabecera)
+        f.write(linea_csv)
+
     return nombre_archivo
 
 
