@@ -105,7 +105,8 @@ def obtener_ordenes_activas_db():
             o.estado
         FROM ORDENES_SERVICIO o
         JOIN EQUIPOS e ON o.id_equipo = e.id_equipo
-        WHERE o.estado != 'Listo para entrega / Entregado'
+        WHERE o.estado NOT LIKE '%Entregado%' 
+          AND o.estado NOT LIKE '%Listo para entrega%'
         ORDER BY 
             CASE 
                 WHEN o.urgencia LIKE '%Urgente%' THEN 1
