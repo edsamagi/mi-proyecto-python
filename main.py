@@ -1,39 +1,48 @@
 import flet as ft
-import backend  # Capa de lógica y base de datos (MySQL)
+import backend  # Conexión directa a MySQL y lógica de negocio
 
 # =====================================================================
 # ROL: DESARROLLADOR FRONTEND (INTERFAZ EN FLET)
-# Propósito de este archivo:
-# Gestionar la interfaz de usuario del taller Compumep. No contiene
-# consultas SQL ni manejo de archivos directos; consume backend.py.
+# Ajustes visuales:
+# 1. align_label_with_hint=True para que el título quede en el borde superior
+# 2. Cajas multilínea ensanchadas hacia abajo (min_lines=5)
+# 3. Ancho completo de columna en ambos paneles
 # =====================================================================
 
 def main(page: ft.Page):
-    # ---------------------------------------------------------
-    # 1. CONFIGURACIÓN DE LA VENTANA PRINCIPAL
-    # ---------------------------------------------------------
     page.title = "Compumep - Sistema de Control y Trazabilidad de Laboratorio (MVP)"
-    page.window_width = 1280
-    page.window_height = 760
+    page.window.width = 1540
+    page.window.height = 860
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.bgcolor = "#f8fafc"
-    page.padding = 15
+    page.bgcolor = "#f1f5f9"
+    page.padding = 12
 
-    # Memoria local para la sesión activa
+    clipboard = ft.Clipboard()
+    page.services.append(clipboard)
+
     catalogo_actual = backend.cargar_catalogo_db()
     servicios_seleccionados = []
 
     def mostrar_mensaje(texto, color="#0f172a"):
-        page.snack_bar = ft.SnackBar(ft.Text(texto, color="white"), bgcolor=color)
-        page.snack_bar.open = True
-        page.update()
+        page.show_dialog(ft.SnackBar(ft.Text(texto, color="white"), bgcolor=color))
 
-    # ---------------------------------------------------------
-    # 2. CAMPOS DEL FORMULARIO OPERATIVO (LADO IZQUIERDO)
-    # ---------------------------------------------------------
+    def estilo_boton(base, hover, presionado):
+        return ft.ButtonStyle(
+            bgcolor={
+                ft.ControlState.PRESSED: presionado,
+                ft.ControlState.HOVERED: hover,
+                ft.ControlState.DEFAULT: base,
+            },
+            color="white",
+            animation_duration=150,
+    )
+
+    # =====================================================================
+    # SECCIÓN 1: CONTROLES - ENTRADA Y PREDIAGNÓSTICO (COLUMNA 1)
+    # =====================================================================
     txt_orden = ft.TextField(
         label="N° Orden",
-        width=130,
+        width=120,
         height=45,
         text_size=13,
         capitalization=ft.TextCapitalization.CHARACTERS
@@ -41,7 +50,7 @@ def main(page: ft.Page):
 
     cmb_urgencia = ft.Dropdown(
         label="Urgencia / Prioridad",
-        width=230,
+        expand=True,
         text_size=13,
         options=[
             ft.dropdown.Option("Estándar (Turno regular)"),
@@ -52,52 +61,67 @@ def main(page: ft.Page):
     )
 
     cmb_tipo = ft.Dropdown(
-        label="Tipo Dispositivo",
-        width=180,
-        text_size=13,
+        label="Tipo",
+        width=120,
+        text_size=12,
         options=[
             ft.dropdown.Option("Portátil"),
             ft.dropdown.Option("Torre PC"),
-            ft.dropdown.Option("Todo en Uno (AIO)"),
-            ft.dropdown.Option("Impresora / UPS"),
+            ft.dropdown.Option("Todo en Uno"),
+            ft.dropdown.Option("Impresora"),
         ],
         value="Portátil"
     )
 
-    txt_serial = ft.TextField(label="Serial / S/N", value="N/A", width=180, height=45, text_size=13)
-    txt_marca = ft.TextField(label="Marca", width=180, height=45, text_size=13)
-    txt_modelo = ft.TextField(label="Modelo", width=180, height=45, text_size=13)
+    txt_marca = ft.TextField(label="Marca", expand=2, height=45, text_size=13)
+    txt_modelo = ft.TextField(label="Modelo", expand=2, height=45, text_size=13)
+    txt_serial = ft.TextField(label="Serial / S/N", value="N/A", expand=2, height=45, text_size=13)
 
-    txt_estado_fisico = ft.TextField(
-        label="Estado Físico de Entrada (Carcasa / Bisagras / Tornillos)",
-        value="Sin daños visibles aparentes",
-        text_size=13
-    )
-
+    # Falla Reportada: Etiqueta arriba en el marco y más alta hacia abajo
     txt_falla_cliente = ft.TextField(
         label="Falla Reportada por el Cliente",
         multiline=True,
-        min_lines=2,
-        max_lines=2,
-        text_size=13
+        min_lines=5,
+        max_lines=6,
+        text_size=13,
+        expand=True,
+        align_label_with_hint=True
+    )
+
+    txt_estado_fisico = ft.TextField(
+        label="Estado Físico (Carcasa / Bisagras)",
+        value="Sin daños visibles aparentes",
+        expand=3,
+        height=48,
+        text_size=12
     )
 
     cmb_smart = ft.Dropdown(
-        label="Telemetría S.M.A.R.T. (Disco)",
-        width=280,
-        text_size=13,
+        label="Telemetría S.M.A.R.T.",
+        expand=2,
+        text_size=12,
         options=[
             ft.dropdown.Option("Bueno (100% / Normal)"),
             ft.dropdown.Option("Riesgo / Alerta (Sectores)"),
             ft.dropdown.Option("Malo (Fallo inminente)"),
-            ft.dropdown.Option("No Aplica / Sin disco / Pendiente"),
+            ft.dropdown.Option("No Aplica / Sin disco"),
         ],
         value="Bueno (100% / Normal)"
     )
 
+    # Prediagnóstico: Etiqueta arriba en el marco y más alta hacia abajo
+    txt_prediagnostico = ft.TextField(
+        label="Prediagnóstico Inicial en Mesa (10-15 min)",
+        multiline=True,
+        min_lines=5,
+        max_lines=6,
+        text_size=13,
+        expand=True,
+        align_label_with_hint=True
+    )
+
     cmb_estado_orden = ft.Dropdown(
         label="Estado Operativo de la Orden",
-        width=280,
         text_size=13,
         options=[
             ft.dropdown.Option("En mesa (Descarte básico)"),
@@ -110,51 +134,19 @@ def main(page: ft.Page):
         value="En mesa (Descarte básico)"
     )
 
-    txt_prediagnostico = ft.TextField(
-        label="Prediagnóstico Inicial en Mesa (10-15 min)",
-        multiline=True,
-        min_lines=2,
-        max_lines=2,
-        text_size=13
-    )
-
-    txt_diagnostico = ft.TextField(
-        label="Diagnóstico Técnico Definitivo (Causa Raíz)",
-        multiline=True,
-        min_lines=2,
-        max_lines=2,
-        text_size=13
-    )
-
-    txt_solucion = ft.TextField(
-        label="Solución / Trabajo Técnico Realizado",
-        multiline=True,
-        min_lines=3,
-        max_lines=3,
-        text_size=13
-    )
-
-    txt_observaciones = ft.TextField(
-        label="Observaciones y Salvedades de Garantía",
-        multiline=True,
-        min_lines=2,
-        max_lines=2,
-        text_size=13
-    )
-
-    # ---------------------------------------------------------
-    # 3. GESTIÓN DEL CATÁLOGO DINÁMICO DE SERVICIOS
-    # ---------------------------------------------------------
+    # =====================================================================
+    # SECCIÓN 2: CONTROLES - SERVICIOS Y DIAGNÓSTICO (COLUMNA 2)
+    # =====================================================================
     cmb_servicio = ft.Dropdown(
         label="Seleccionar Servicio del Catálogo",
-        width=320,
-        text_size=13,
+        expand=3,
+        text_size=12,
         options=[ft.dropdown.Option(nombre) for nombre in catalogo_actual.keys()]
     )
 
     txt_nuevo_servicio = ft.TextField(
-        label="O escribir servicio nuevo...",
-        width=220,
+        label="Escribir servicio nuevo...",
+        expand=2,
         height=45,
         text_size=12
     )
@@ -169,7 +161,7 @@ def main(page: ft.Page):
                 actualizar_vista_servicios()
 
             chip = ft.Chip(
-                label=ft.Text(serv, size=12),
+                label=ft.Text(serv, size=11),
                 on_delete=quitar_serv,
                 bgcolor="#e0f2fe"
             )
@@ -187,7 +179,7 @@ def main(page: ft.Page):
                 nuevo_id = backend.agregar_nuevo_servicio_db(nombre_final)
                 catalogo_actual[nombre_final] = nuevo_id
                 cmb_servicio.options.append(ft.dropdown.Option(nombre_final))
-                mostrar_mensaje(f"Nuevo servicio '{nombre_final}' aprendido en BD.", "#0284c7")
+                mostrar_mensaje(f"Servicio '{nombre_final}' guardado en BD.", "#0284c7")
             txt_nuevo_servicio.value = ""
         elif servicio_elegido:
             nombre_final = servicio_elegido
@@ -196,15 +188,48 @@ def main(page: ft.Page):
             return
 
         if nombre_final in servicios_seleccionados:
-            mostrar_mensaje("Este servicio ya está asignado a la orden.", "#64748b")
+            mostrar_mensaje("Este servicio ya está en la lista.", "#64748b")
             return
 
         servicios_seleccionados.append(nombre_final)
         actualizar_vista_servicios()
 
-    # ---------------------------------------------------------
-    # 4. ACCIONES DEL FORMULARIO (INTERACCIÓN CON BACKEND)
-    # ---------------------------------------------------------
+    # Diagnóstico Técnico: Etiqueta arriba en el marco
+    txt_diagnostico = ft.TextField(
+        label="Diagnóstico Técnico Definitivo (Causa Raíz)",
+        multiline=True,
+        min_lines=3,
+        max_lines=4,
+        text_size=13,
+        expand=True,
+        align_label_with_hint=True
+    )
+
+    # Solución: Etiqueta arriba en el marco
+    txt_solucion = ft.TextField(
+        label="Proceso / Solución / Trabajo Técnico Realizado",
+        multiline=True,
+        min_lines=3,
+        max_lines=4,
+        text_size=13,
+        expand=True,
+        align_label_with_hint=True
+    )
+
+    # Observaciones: Etiqueta arriba en el marco
+    txt_observaciones = ft.TextField(
+        label="Observaciones y Salvedades de Garantía",
+        multiline=True,
+        min_lines=3,
+        max_lines=4,
+        text_size=13,
+        expand=True,
+        align_label_with_hint=True
+    )
+
+    # =====================================================================
+    # SECCIÓN 3: ACCIONES DE NEGOCIO Y PERSISTENCIA
+    # =====================================================================
     def recolectar_datos_formulario():
         return {
             "orden": txt_orden.value.strip().upper() if txt_orden.value else "",
@@ -246,12 +271,12 @@ def main(page: ft.Page):
     def buscar_orden_evento(e=None):
         orden = txt_orden.value.strip().upper() if txt_orden.value else ""
         if not orden:
-            mostrar_mensaje("Ingrese un número de orden para buscar.", "#d97706")
+            mostrar_mensaje("Ingrese una orden para buscar.", "#d97706")
             return
 
         registro, servs = backend.buscar_orden_db(orden)
         if not registro:
-            mostrar_mensaje(f"La orden {orden} no existe en la base de datos.", "#dc2626")
+            mostrar_mensaje(f"La orden {orden} no existe en MySQL.", "#dc2626")
             return
 
         cmb_tipo.value = registro["tipo_equipo"]
@@ -276,41 +301,40 @@ def main(page: ft.Page):
     def guardar_ficha_evento(e):
         datos = recolectar_datos_formulario()
         if not datos["orden"] or not datos["marca"] or not datos["modelo"] or not datos["falla_cli"]:
-            mostrar_mensaje("Campos requeridos: N° Orden, Marca, Modelo y Falla.", "#dc2626")
+            mostrar_mensaje("Faltan campos clave: Orden, Marca, Modelo o Falla.", "#dc2626")
             return
 
         try:
             accion, fecha = backend.guardar_o_actualizar_db(datos, servicios_seleccionados, catalogo_actual)
             ruta_txt = backend.generar_archivo_ficha_txt(datos, servicios_seleccionados, fecha)
-            
             limpiar_formulario_evento()
-            cargar_tabla_monitoreo()  # Recarga la lista lateral al instante
-            mostrar_mensaje(f"✓ Orden {datos['orden']} {accion} correctamente.", "#15803d")
+            cargar_tabla_monitoreo()
+            mostrar_mensaje(f"✓ Orden {datos['orden']} {accion}. Ficha: {ruta_txt}", "#15803d")
         except Exception as err:
             mostrar_mensaje(f"Error al guardar: {err}", "#dc2626")
 
-    def copiar_web_evento(e):
+    async def copiar_web_evento(e):
         datos = recolectar_datos_formulario()
         if not datos["orden"]:
-            mostrar_mensaje("Ingrese o cargue una orden antes de copiar.", "#d97706")
+            mostrar_mensaje("Cargue una orden para copiar el reporte.", "#d97706")
             return
         resumen = backend.construir_resumen_web(datos, servicios_seleccionados)
-        page.set_clipboard(resumen)
-        mostrar_mensaje("📋 Reporte copiado. Listo para pegar (Ctrl+V) en el sistema web.", "#7c3aed")
+        await clipboard.set(resumen)
+        mostrar_mensaje("📋 Reporte técnico copiado al portapapeles (Ctrl+V).", "#7c3aed")
 
-    # ---------------------------------------------------------
-    # 5. PANEL DE MONITOREO EN VIVO (LADO DERECHO)
-    # ---------------------------------------------------------
+    # =====================================================================
+    # SECCIÓN 4: MONITOR DE ÓRDENES ACTIVAS
+    # =====================================================================
     tabla_ordenes = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("Orden", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Urgencia", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Equipo", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Estado", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Orden", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Urgencia", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Equipo", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Estado", weight=ft.FontWeight.BOLD, size=12)),
         ],
         rows=[],
         heading_row_color="#e2e8f0",
-        column_spacing=18,
+        column_spacing=10,
     )
 
     def cargar_tabla_monitoreo():
@@ -329,10 +353,10 @@ def main(page: ft.Page):
 
                 fila = ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(oid, weight=ft.FontWeight.BOLD, color="#0284c7"), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(urg, size=12), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(eq, size=12), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(est, size=12), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(oid, weight=ft.FontWeight.BOLD, color="#0284c7", size=11), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(urg, size=11), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(eq, size=11), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(est, size=11), on_tap=seleccionar_orden),
                     ]
                 )
                 tabla_ordenes.rows.append(fila)
@@ -342,89 +366,100 @@ def main(page: ft.Page):
         except Exception as err:
             print(f"Error cargando tabla: {err}")
 
-    # ---------------------------------------------------------
-    # 6. DISTRIBUCIÓN VISUAL DE LA INTERFAZ (LAYOUT)
-    # ---------------------------------------------------------
+    # =====================================================================
+    # SECCIÓN 5: MAQUETACIÓN VISUAL
+    # =====================================================================
     encabezado = ft.Container(
         content=ft.Text(
-            "COMPUMEP | GESTIÓN DE LABORATORIO Y ESTANDARIZACIÓN DE SERVICIOS (MVP)",
-            size=16,
+            "COMPUMEP | SISTEMA MODULAR DE GESTIÓN DE LABORATORIO Y TRAZABILIDAD (MVP)",
+            size=15,
             weight=ft.FontWeight.BOLD,
             color="white"
         ),
         bgcolor="#0f172a",
-        padding=12,
-        border_radius=8
+        padding=10,
+        border_radius=6
     )
 
-    panel_izquierdo = ft.Container(
-        expand=3,
+    panel_prediagnostico = ft.Container(
+        expand=4,
         bgcolor="white",
-        padding=15,
+        padding=14,
         border_radius=8,
         border=ft.Border.all(1, "#cbd5e1"),
         content=ft.Column(
             scroll=ft.ScrollMode.AUTO,
             spacing=10,
             controls=[
-                ft.Text("Ficha Técnica Operativa", size=15, weight=ft.FontWeight.BOLD, color="#0f172a"),
+                ft.Text("Ficha Técnica - Recepción y Filtro de Mesa", size=14, weight=ft.FontWeight.BOLD, color="#0f172a"),
                 ft.Row([
                     txt_orden,
                     ft.Button("Buscar", icon=ft.Icons.SEARCH, on_click=buscar_orden_evento),
                     cmb_urgencia
                 ]),
-                ft.Row([cmb_tipo, txt_marca, txt_modelo, txt_serial]),
-                txt_estado_fisico,
-                txt_falla_cliente,
-                ft.Row([cmb_smart, cmb_estado_orden]),
-                txt_prediagnostico,
-                ft.Divider(height=1, color="#e2e8f0"),
-                ft.Text("Servicios Aplicados (Catálogo Dinámico)", size=13, weight=ft.FontWeight.BOLD),
-                ft.Row([
-                    cmb_servicio,
-                    txt_nuevo_servicio,
-                    ft.Button("+ Agregar", bgcolor="#10b981", color="white", on_click=agregar_servicio_evento)
-                ]),
-                contenedor_chips_servicios,
-                ft.Divider(height=1, color="#e2e8f0"),
-                txt_diagnostico,
-                txt_solucion,
-                txt_observaciones,
-                ft.Row([
-                    ft.Button("GUARDAR / ACTUALIZAR", icon=ft.Icons.SAVE, bgcolor="#0284c7", color="white", expand=True, on_click=guardar_ficha_evento),
-                    ft.Button("Copiar para Web", icon=ft.Icons.COPY, bgcolor="#7c3aed", color="white", on_click=copiar_web_evento),
-                    ft.OutlinedButton("Limpiar", on_click=limpiar_formulario_evento),
-                ])
+                ft.Row([cmb_tipo, txt_marca, txt_modelo, txt_serial], spacing=6),
+                ft.Row([txt_falla_cliente]),
+                ft.Row([txt_estado_fisico, cmb_smart], spacing=8),
+                ft.Row([txt_prediagnostico]),
+                cmb_estado_orden,
             ]
         )
     )
 
-    panel_derecho = ft.Container(
-        expand=2,
+    panel_servicios_diagnostico = ft.Container(
+        expand=4,
         bgcolor="white",
-        padding=15,
+        padding=14,
+        border_radius=8,
+        border=ft.Border.all(1, "#cbd5e1"),
+        content=ft.Column(
+            scroll=ft.ScrollMode.AUTO,
+            spacing=10,
+            controls=[
+                ft.Text("Laboratorio Técnico - Servicios y Solución", size=14, weight=ft.FontWeight.BOLD, color="#0f172a"),
+                ft.Row([
+                    cmb_servicio,
+                    txt_nuevo_servicio,
+                    ft.Button("+ Agregar", style=estilo_boton("#10b981", "#059669", "#047857"), on_click=agregar_servicio_evento)
+                ]),
+                contenedor_chips_servicios,
+                ft.Row([txt_diagnostico]),
+                ft.Row([txt_solucion]),
+                ft.Row([txt_observaciones]),
+                ft.Row([
+                    ft.Button("GUARDAR / ACTUALIZAR", icon=ft.Icons.SAVE, style=estilo_boton("#0284c7", "#0369a1", "#075985"), expand=True, on_click=guardar_ficha_evento),
+                    ft.Button("Copiar Web", icon=ft.Icons.COPY, style=estilo_boton("#7c3aed", "#6d28d9", "#5b21b6"), on_click=copiar_web_evento),
+                    ft.OutlinedButton("Limpiar", on_click=limpiar_formulario_evento),
+                ], spacing=6)
+            ]
+        )
+    )
+
+    panel_monitor = ft.Container(
+        expand=3,
+        bgcolor="white",
+        padding=12,
         border_radius=8,
         border=ft.Border.all(1, "#cbd5e1"),
         content=ft.Column(
             scroll=ft.ScrollMode.AUTO,
             controls=[
-                ft.Text("Equipos Activos en Taller", size=15, weight=ft.FontWeight.BOLD, color="#0f172a"),
+                ft.Text("Órdenes en Taller (Clic para cargar)", size=13, weight=ft.FontWeight.BOLD, color="#0f172a"),
                 tabla_ordenes
             ]
         )
     )
 
-    # 1. Montamos primero la estructura visual en la página
     page.add(
         encabezado,
-        ft.Row([panel_izquierdo, panel_derecho], expand=True, spacing=15)
+        ft.Row(
+            [panel_prediagnostico, panel_servicios_diagnostico, panel_monitor],
+            expand=True,
+            spacing=10
+        )
     )
 
-    # 2. Carga automática inicial de datos una vez los controles existen en pantalla
     cargar_tabla_monitoreo()
 
-# ---------------------------------------------------------
-# PUNTO DE ENTRADA DE LA APLICACIÓN
-# ---------------------------------------------------------
 if __name__ == "__main__":
     ft.run(main)
