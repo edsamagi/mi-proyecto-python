@@ -11,8 +11,8 @@ import backend  # Conexión directa a MySQL y lógica de negocio
 
 def main(page: ft.Page):
     page.title = "Compumep - Sistema de Control y Trazabilidad de Laboratorio (MVP)"
-    page.window.width = 1540
-    page.window.height = 860
+    page.window.width = 1490
+    page.window.height = 700
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = "#f1f5f9"
     page.padding = 12
@@ -369,18 +369,7 @@ def main(page: ft.Page):
     # =====================================================================
     # SECCIÓN 5: MAQUETACIÓN VISUAL
     # =====================================================================
-    encabezado = ft.Container(
-        content=ft.Text(
-            "COMPUMEP | SISTEMA MODULAR DE GESTIÓN DE LABORATORIO Y TRAZABILIDAD (MVP)",
-            size=15,
-            weight=ft.FontWeight.BOLD,
-            color="white"
-        ),
-        bgcolor="#0f172a",
-        padding=10,
-        border_radius=6
-    )
-
+    
     panel_prediagnostico = ft.Container(
         expand=4,
         bgcolor="white",
@@ -450,8 +439,7 @@ def main(page: ft.Page):
         )
     )
 
-    page.add(
-        encabezado,
+    page.add(        
         ft.Row(
             [panel_prediagnostico, panel_servicios_diagnostico, panel_monitor],
             expand=True,
