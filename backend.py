@@ -57,24 +57,20 @@ def cargar_catalogo_db():
 
 def agregar_nuevo_servicio_db(nombre_servicio):
     """
-    Si en el taller realizas un trabajo nuevo que no existía en la lista,
-    esta función lo guarda automáticamente en MySQL para que quede disponible
-    para siempre sin tener que abrir MySQL Workbench.
+    Guarda automáticamente un nuevo servicio en el catálogo de MySQL.
     """
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     
-    # Insertamos el nuevo nombre. En nivel_semaforo y tiempo_estimado ponemos valores
-    # por defecto ('N/A', 'Estándar') para no romper la estructura original de tu tabla en MySQL.
     cursor.execute(
-        "INSERT INTO catalogo_servicios (nombre_servicio, nivel_semaforo, tiempo_estimado) VALUES (%s, 'N/A', 'Estándar');",
+        """
+        INSERT INTO catalogo_servicios (nombre_servicio, categoria, nivel_semaforo, tiempo_estimado) 
+        VALUES (%s, 'General', 'Verde', 'Por definir');
+        """,
         (nombre_servicio.strip(),)
     )
     
-    # Capturamos el ID numérico que MySQL le asignó automáticamente a este nuevo servicio
     nuevo_id = cursor.lastrowid
-    
-    # commit() confirma y guarda los cambios de forma permanente en el disco duro
     conexion.commit()
     cursor.close()
     conexion.close()
