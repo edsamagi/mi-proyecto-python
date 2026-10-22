@@ -2,17 +2,16 @@ import flet as ft
 import backend  # Conexión directa a MySQL y lógica de negocio
 
 # =====================================================================
-# ROL: DESARROLLADOR FRONTEND (INTERFAZ EN FLET)
-# Ajustes visuales:
-# 1. align_label_with_hint=True para que el título quede en el borde superior
-# 2. Cajas multilínea ensanchadas hacia abajo (min_lines=5)
-# 3. Ancho completo de columna en ambos paneles
+# ROL: DESARROLLADOR FRONTEND / INTERFAZ EN FLET
+# Ajustes de legibilidad:
+# - Jerarquía visual clara: labels en gris técnico (#64748b) y texto en carbón nítido (#0f172a)
+# - Diferenciación entre títulos de casillas y contenido redactado
 # =====================================================================
 
 def main(page: ft.Page):
     page.title = "Compumep - Sistema de Control y Trazabilidad de Laboratorio (MVP)"
-    page.window.width = 1490
-    page.window.height = 700
+    page.window_width = 1490
+    page.window_height = 740
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = "#f1f5f9"
     page.padding = 12
@@ -35,7 +34,11 @@ def main(page: ft.Page):
             },
             color="white",
             animation_duration=150,
-    )
+        )
+
+    # Estilos compartidos para crear jerarquía visual clara
+    estilo_label = ft.TextStyle(size=11, color="#64748b", weight=ft.FontWeight.W_500)
+    estilo_texto = ft.TextStyle(size=13, color="#0f172a")
 
     # =====================================================================
     # SECCIÓN 1: CONTROLES - ENTRADA Y PREDIAGNÓSTICO (COLUMNA 1)
@@ -44,14 +47,18 @@ def main(page: ft.Page):
         label="N° Orden",
         width=120,
         height=45,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         capitalization=ft.TextCapitalization.CHARACTERS
     )
 
     cmb_urgencia = ft.Dropdown(
         label="Urgencia / Prioridad",
         expand=True,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         options=[
             ft.dropdown.Option("Estándar (Turno regular)"),
             ft.dropdown.Option("Prioridad Media"),
@@ -63,7 +70,9 @@ def main(page: ft.Page):
     cmb_tipo = ft.Dropdown(
         label="Tipo",
         width=120,
-        text_size=12,
+        text_style=ft.TextStyle(size=12, color="#0f172a"),
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         options=[
             ft.dropdown.Option("Portátil"),
             ft.dropdown.Option("Torre PC"),
@@ -73,17 +82,42 @@ def main(page: ft.Page):
         value="Portátil"
     )
 
-    txt_marca = ft.TextField(label="Marca", expand=2, height=45, text_size=13)
-    txt_modelo = ft.TextField(label="Modelo", expand=2, height=45, text_size=13)
-    txt_serial = ft.TextField(label="Serial / S/N", value="N/A", expand=2, height=45, text_size=13)
+    txt_marca = ft.TextField(
+        label="Marca", 
+        expand=2, 
+        height=45, 
+        text_style=estilo_texto, 
+        label_style=estilo_label, 
+        border_color="#cbd5e1"
+    )
+    
+    txt_modelo = ft.TextField(
+        label="Modelo", 
+        expand=2, 
+        height=45, 
+        text_style=estilo_texto, 
+        label_style=estilo_label, 
+        border_color="#cbd5e1"
+    )
+    
+    txt_serial = ft.TextField(
+        label="Serial / S/N", 
+        value="N/A", 
+        expand=2, 
+        height=45, 
+        text_style=estilo_texto, 
+        label_style=estilo_label, 
+        border_color="#cbd5e1"
+    )
 
-    # Falla Reportada: Etiqueta arriba en el marco y más alta hacia abajo
     txt_falla_cliente = ft.TextField(
         label="Falla Reportada por el Cliente",
         multiline=True,
         min_lines=5,
         max_lines=6,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         expand=True,
         align_label_with_hint=True
     )
@@ -93,13 +127,17 @@ def main(page: ft.Page):
         value="Sin daños visibles aparentes",
         expand=3,
         height=48,
-        text_size=12
+        text_style=ft.TextStyle(size=12, color="#0f172a"),
+        label_style=estilo_label,
+        border_color="#cbd5e1"
     )
 
     cmb_smart = ft.Dropdown(
         label="Telemetría S.M.A.R.T.",
         expand=2,
-        text_size=12,
+        text_style=ft.TextStyle(size=12, color="#0f172a"),
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         options=[
             ft.dropdown.Option("Bueno (100% / Normal)"),
             ft.dropdown.Option("Riesgo / Alerta (Sectores)"),
@@ -109,20 +147,23 @@ def main(page: ft.Page):
         value="Bueno (100% / Normal)"
     )
 
-    # Prediagnóstico: Etiqueta arriba en el marco y más alta hacia abajo
     txt_prediagnostico = ft.TextField(
         label="Prediagnóstico Inicial en Mesa (10-15 min)",
         multiline=True,
         min_lines=5,
         max_lines=6,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         expand=True,
         align_label_with_hint=True
     )
 
     cmb_estado_orden = ft.Dropdown(
         label="Estado Operativo de la Orden",
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         options=[
             ft.dropdown.Option("En mesa (Descarte básico)"),
             ft.dropdown.Option("En reposo / Prueba 24h"),
@@ -140,7 +181,9 @@ def main(page: ft.Page):
     cmb_servicio = ft.Dropdown(
         label="Seleccionar Servicio del Catálogo",
         expand=3,
-        text_size=12,
+        text_style=ft.TextStyle(size=12, color="#0f172a"),
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         options=[ft.dropdown.Option(nombre) for nombre in catalogo_actual.keys()]
     )
 
@@ -148,7 +191,9 @@ def main(page: ft.Page):
         label="Escribir servicio nuevo...",
         expand=2,
         height=45,
-        text_size=12
+        text_style=ft.TextStyle(size=12, color="#0f172a"),
+        label_style=estilo_label,
+        border_color="#cbd5e1"
     )
 
     contenedor_chips_servicios = ft.Row(wrap=True, spacing=6, run_spacing=6)
@@ -161,9 +206,9 @@ def main(page: ft.Page):
                 actualizar_vista_servicios()
 
             chip = ft.Chip(
-                label=ft.Text(serv, size=11),
+                label=ft.Text(serv, size=11, color="#0369a1"),
                 on_delete=quitar_serv,
-                bgcolor="#e0f2fe"
+                bgcolor="#f0f9ff"
             )
             contenedor_chips_servicios.controls.append(chip)
         page.update()
@@ -194,35 +239,38 @@ def main(page: ft.Page):
         servicios_seleccionados.append(nombre_final)
         actualizar_vista_servicios()
 
-    # Diagnóstico Técnico: Etiqueta arriba en el marco
     txt_diagnostico = ft.TextField(
         label="Diagnóstico Técnico Definitivo (Causa Raíz)",
         multiline=True,
         min_lines=3,
         max_lines=4,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         expand=True,
         align_label_with_hint=True
     )
 
-    # Solución: Etiqueta arriba en el marco
     txt_solucion = ft.TextField(
         label="Proceso / Solución / Trabajo Técnico Realizado",
         multiline=True,
         min_lines=3,
         max_lines=4,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         expand=True,
         align_label_with_hint=True
     )
 
-    # Observaciones: Etiqueta arriba en el marco
     txt_observaciones = ft.TextField(
         label="Observaciones y Salvedades de Garantía",
         multiline=True,
         min_lines=3,
         max_lines=4,
-        text_size=13,
+        text_style=estilo_texto,
+        label_style=estilo_label,
+        border_color="#cbd5e1",
         expand=True,
         align_label_with_hint=True
     )
@@ -327,13 +375,13 @@ def main(page: ft.Page):
     # =====================================================================
     tabla_ordenes = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("Orden", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Urgencia", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Equipo", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Estado", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Orden", weight=ft.FontWeight.BOLD, size=11, color="#475569")),
+            ft.DataColumn(ft.Text("Urgencia", weight=ft.FontWeight.BOLD, size=11, color="#475569")),
+            ft.DataColumn(ft.Text("Equipo", weight=ft.FontWeight.BOLD, size=11, color="#475569")),
+            ft.DataColumn(ft.Text("Estado", weight=ft.FontWeight.BOLD, size=11, color="#475569")),
         ],
         rows=[],
-        heading_row_color="#e2e8f0",
+        heading_row_color="#f8fafc",
         column_spacing=10,
     )
 
@@ -354,9 +402,9 @@ def main(page: ft.Page):
                 fila = ft.DataRow(
                     cells=[
                         ft.DataCell(ft.Text(oid, weight=ft.FontWeight.BOLD, color="#0284c7", size=11), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(urg, size=11), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(eq, size=11), on_tap=seleccionar_orden),
-                        ft.DataCell(ft.Text(est, size=11), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(urg, size=11, color="#334155"), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(eq, size=11, color="#334155"), on_tap=seleccionar_orden),
+                        ft.DataCell(ft.Text(est, size=11, color="#334155"), on_tap=seleccionar_orden),
                     ]
                 )
                 tabla_ordenes.rows.append(fila)
@@ -369,13 +417,12 @@ def main(page: ft.Page):
     # =====================================================================
     # SECCIÓN 5: MAQUETACIÓN VISUAL
     # =====================================================================
-    
     panel_prediagnostico = ft.Container(
         expand=4,
         bgcolor="white",
         padding=14,
         border_radius=8,
-        border=ft.Border.all(1, "#cbd5e1"),
+        border=ft.Border.all(1, "#e2e8f0"),
         content=ft.Column(
             scroll=ft.ScrollMode.AUTO,
             spacing=10,
@@ -400,7 +447,7 @@ def main(page: ft.Page):
         bgcolor="white",
         padding=14,
         border_radius=8,
-        border=ft.Border.all(1, "#cbd5e1"),
+        border=ft.Border.all(1, "#e2e8f0"),
         content=ft.Column(
             scroll=ft.ScrollMode.AUTO,
             spacing=10,
@@ -429,7 +476,7 @@ def main(page: ft.Page):
         bgcolor="white",
         padding=12,
         border_radius=8,
-        border=ft.Border.all(1, "#cbd5e1"),
+        border=ft.Border.all(1, "#e2e8f0"),
         content=ft.Column(
             scroll=ft.ScrollMode.AUTO,
             controls=[
@@ -439,7 +486,7 @@ def main(page: ft.Page):
         )
     )
 
-    page.add(        
+    page.add(
         ft.Row(
             [panel_prediagnostico, panel_servicios_diagnostico, panel_monitor],
             expand=True,
