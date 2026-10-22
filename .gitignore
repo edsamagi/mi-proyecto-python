@@ -2,6 +2,8 @@
 reportes_csv/
 *.txt
 *.csv
+*.mwb
+*.bak
 
 # Excluir archivos temporales y de configuración de VS Code
 .vscode/
