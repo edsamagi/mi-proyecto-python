@@ -255,7 +255,9 @@ def guardar_o_actualizar_db(datos, servicios_seleccionados, catalogo_actual):
 
 def generar_archivo_ficha_csv(datos, servicios_seleccionados, fecha_actual):
     """
-    Guarda o anexa la ficha técnica como una sola línea en formato CSV compatible con Excel.
+    Guarda o actualiza la ficha técnica en formato CSV.
+    Si la orden ya existe en el archivo, reemplaza su fila con los datos más recientes.
+    Si no existe, la anexa al final.
     """
     os.makedirs("reportes_csv", exist_ok=True)
     nombre_archivo = "reportes_csv/fichas_tecnicas.csv"
@@ -289,16 +291,41 @@ def generar_archivo_ficha_csv(datos, servicios_seleccionados, fecha_actual):
         f"{servicios_str},{diag_definitivo},{solucion_realizada},{observaciones},{estado_final}\n"
     )
 
-    archivo_nuevo = not os.path.exists(nombre_archivo)
-    with open(nombre_archivo, "a", encoding="utf-8-sig") as f:
-        if archivo_nuevo:
-            cabecera = (
-                "Nro_Orden,Urgencia,Fecha_Registro,Tipo_Dispositivo,Marca_Modelo,Serial,"
-                "Estado_Entrada,Falla_Reportada,Smart_Status,Detalle_Prediagnostico,"
-                "Servicios_Realizados,Diagnostico_Definitivo,Solucion_Realizada,Observaciones,Estado_Final\n"
-            )
+    cabecera = (
+        "Nro_Orden,Urgencia,Fecha_Registro,Tipo_Dispositivo,Marca_Modelo,Serial,"
+        "Estado_Entrada,Falla_Reportada,Smart_Status,Detalle_Prediagnostico,"
+        "Servicios_Realizados,Diagnostico_Definitivo,Solucion_Realizada,Observaciones,Estado_Final\n"
+    )
+
+    if not os.path.exists(nombre_archivo):
+        with open(nombre_archivo, "w", encoding="utf-8-sig") as f:
             f.write(cabecera)
-        f.write(linea_csv)
+            f.write(linea_csv)
+    else:
+        # Leemos las filas existentes
+        with open(nombre_archivo, "r", encoding="utf-8-sig") as f:
+            lineas = f.readlines()
+
+        orden_encontrada = False
+        nuevas_lineas = []
+
+        if len(lineas) > 0:
+            nuevas_lineas.append(lineas[0])  # Conservar cabecera
+
+        for fila in lineas[1:]:
+            # Extraer el primer campo (Nro_Orden)
+            orden_existente = fila.split(",")[0].strip().replace('"', '')
+            if orden_existente == nro_orden:
+                nuevas_lineas.append(linea_csv)  # Sobrescribir con la información actualizada
+                orden_encontrada = True
+            else:
+                nuevas_lineas.append(fila)
+
+        if not orden_encontrada:
+            nuevas_lineas.append(linea_csv)  # Anexar si es orden nueva
+
+        with open(nombre_archivo, "w", encoding="utf-8-sig") as f:
+            f.writelines(nuevas_lineas)
 
     return nombre_archivo
 
