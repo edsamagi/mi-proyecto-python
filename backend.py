@@ -332,20 +332,19 @@ def generar_archivo_ficha_csv(datos, servicios_seleccionados, fecha_actual):
 
 def construir_resumen_web(datos, servicios_seleccionados):
     """
-    Arma un texto compacto y ordenado listo para copiar al portapapeles (Ctrl + C)
-    y pegarlo (Ctrl + V) en el software administrativo web que usa recepción.
+    Genera el formato técnico estructurado para el sistema web,
+    separando cada bloque exactamente por 5 guiones medios.
     """
-    servicios_txt = ", ".join(servicios_seleccionados) if servicios_seleccionados else "Pendiente por autorizar"
+    prediag = datos.get("prediag") or "N/A"
+    proceso = datos.get("solucion") or "N/A"
+    diagnostico = datos.get("diag") or "En proceso"
+    servicios = ", ".join(servicios_seleccionados) if servicios_seleccionados else "Pendiente por autorizar"
+    observaciones = datos.get("obs") or "Sin salvedades de garantía"
+
     return (
-        f"--- REPORTE TÉCNICO COMPUMEP (ORDEN: {datos['orden']}) ---\n"
-        f"EQUIPO: {datos['tipo']} {datos['marca']} {datos['modelo']}\n"
-        f"ESTADO EN TALLER: {datos['estado_orden']}\n"
-        f"FALLA REPORTADA: {datos['falla_cli']}\n"
-        f"ESTADO SMART: {datos['smart']}\n"
-        f"PREDIAGNÓSTICO INICIAL (MESA): {datos['prediag'] or 'N/A'}\n"
-        f"DIAGNÓSTICO TÉCNICO: {datos['diag'] or 'En proceso'}\n"
-        f"SERVICIOS REALIZADOS: {servicios_txt}\n"
-        f"SOLUCIÓN / TRABAJO REALIZADO: {datos['solucion'] or 'En banco'}\n"
-        f"OBSERVACIONES / SALVEDADES: {datos['obs'] or 'Sin salvedades de garantía'}\n"
-        f"------------------------------------------------"
+        f"Prediagnostico\n{prediag}\n-----\n"
+        f"Proceso\n{proceso}\n-----\n"
+        f"Diagnostico\n{diagnostico}\n-----\n"
+        f"Servicios aplicados\n{servicios}\n-----\n"
+        f"Observaciones\n{observaciones}"
     )
