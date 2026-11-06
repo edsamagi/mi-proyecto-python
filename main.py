@@ -144,7 +144,7 @@ def main(page: ft.Page):
             ft.dropdown.Option("Malo (Fallo inminente)"),
             ft.dropdown.Option("No Aplica / Sin disco"),
         ],
-        value="Bueno (100% / Normal)"
+        value="No Aplica / Sin disco"
     )
 
     txt_prediagnostico = ft.TextField(
@@ -166,9 +166,11 @@ def main(page: ft.Page):
         border_color="#cbd5e1",
         options=[
             ft.dropdown.Option("En mesa (Descarte básico)"),
+            ft.dropdown.Option("En estanteria (Prediagnosticado)"),
             ft.dropdown.Option("En reposo / Prueba 24h"),
             ft.dropdown.Option("Requiere laboratorio especializado (Electrónica)"),
             ft.dropdown.Option("Esperando aprobación cliente"),
+            ft.dropdown.Option("Esperando repuesto"),
             ft.dropdown.Option("En reparación / Mantenimiento"),
             ft.dropdown.Option("Listo para entrega / Entregado"),
         ],
@@ -179,7 +181,7 @@ def main(page: ft.Page):
     # SECCIÓN 2: CONTROLES - SERVICIOS Y DIAGNÓSTICO (COLUMNA 2)
     # =====================================================================
     cmb_servicio = ft.Dropdown(
-        label="Seleccionar Servicio del Catálogo",
+        label="Seleccionar Servicio",
         expand=3,
         text_style=ft.TextStyle(size=12, color="#0f172a"),
         label_style=estilo_label,
@@ -305,7 +307,7 @@ def main(page: ft.Page):
         txt_modelo.value = ""
         txt_estado_fisico.value = "Sin daños visibles aparentes"
         txt_falla_cliente.value = ""
-        cmb_smart.value = "Bueno (100% / Normal)"
+        cmb_smart.value = "No Aplica / Sin disco"
         cmb_estado_orden.value = "En mesa (Descarte básico)"
         txt_prediagnostico.value = ""
         txt_diagnostico.value = ""
@@ -335,7 +337,7 @@ def main(page: ft.Page):
         txt_falla_cliente.value = registro["falla_cliente"]
         cmb_urgencia.value = registro["urgencia"] or "Estándar (Turno regular)"
         cmb_estado_orden.value = registro["estado"] or "En mesa (Descarte básico)"
-        cmb_smart.value = registro["salud_smart"] or "Bueno (100% / Normal)"
+        cmb_smart.value = registro["salud_smart"] or "No Aplica / Sin disco"
         txt_prediagnostico.value = registro["prediagnostico_inicial"] or ""
         txt_diagnostico.value = registro["diagnostico_definitivo"] or ""
         txt_solucion.value = registro["solucion_tecnica"] or ""
